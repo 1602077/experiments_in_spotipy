@@ -10,6 +10,7 @@ import spotify_credentials as cred
 import os
 import glob
 import time
+import random
 
 
 def get_artist_data(artist_name, api_credentials):
@@ -90,7 +91,7 @@ def get_artist_data(artist_name, api_credentials):
     #################################################################################
     # GET AUDIO FEATURES FOR EACH ALBUM TRACK
     #################################################################################
-    audio_feature_keys = ['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness', 'speechiness', 'tempo', 'valence', 'release_date', 'popularity']
+    audio_feature_keys = ['acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'loudness', 'speechiness', 'tempo', 'valence', 'duration_ms', 'release_date', 'popularity']
     for album in spotify_albums:
         # Assign audio feature keys empty list values in nested dictionary
         for key in audio_feature_keys:
@@ -103,10 +104,12 @@ def get_artist_data(artist_name, api_credentials):
 
             # Append data for all keys expect release date popularity which will 
             # need to be obtained using sp.track().
-            for key in audio_feature_keys[:-2]:
+            for key in audio_feature_keys[:-3]:
                 spotify_albums[album][key].append(features[0][key])
 
             track_info = sp.track(track)
+
+            spotify_albums[album]['duration_ms'].append(track_info['duration_ms'])
             spotify_albums[album]['release_date'].append(track_info['album']['release_date'])
             spotify_albums[album]['popularity'].append(track_info['popularity'])
 
@@ -121,7 +124,7 @@ def get_artist_data(artist_name, api_credentials):
             all_albums_data[feature].extend(spotify_albums[album][feature])
 
     df = pd.DataFrame.from_dict(all_albums_data)
-    df = df.drop_duplicates('name').sort_index()
+    #df = df.drop_duplicates('name').sort_index()
     return df
 
 
@@ -141,12 +144,13 @@ def main():
     else:
         artists_df = pd.read_csv("../data/artist_list.csv")
     artists_list = artists_df.values.tolist()
-
+    random.shuffle(artists_list)
     #################################################################################
     # CALL get_artist_data() FOR EACH ARTIST IN artists_list
     #################################################################################
     request_counter = 0
     sleep_min, sleep_max = 4, 6
+    artists_list_tmp = ["Michael Jackson"]
     for artist in artists_list:
         if not os.path.isfile('../data/artists/' + str(*artist) + '.csv'):
             df = get_artist_data(*artist, credentials)

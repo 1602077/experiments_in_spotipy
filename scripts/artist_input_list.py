@@ -4,7 +4,7 @@
 import pandas as pd
 
 
-def get_apple_music_library_artists(input_file):
+def get_library_artists(input_file):
     """
     Saves all unique artist names in my apple music library as a list to be 
     fed into get_artist_data to create a sufficiently large dataset for
@@ -26,6 +26,7 @@ def get_apple_music_library_artists(input_file):
     artists_df.drop_duplicates(inplace=True)
     artists_df.sort_values(by=['Album Artist'], inplace=True, ascending=True)
     artists_list = artists_df.values.tolist()
+    print(artists_list[0])
 
     print(f"{len(artists_list)} artists detected in library.")
 
@@ -34,4 +35,4 @@ def get_apple_music_library_artists(input_file):
 
 
 if __name__ == "__main__":
-    get_apple_music_library_artists("~/Documents/Computing/SQL/apple_music_replay/input_data/MusicLib.csv")
+    get_library_artists("~/Documents/Computing/SQL/apple_music_replay/input_data/MusicLib.csv")
